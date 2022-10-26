@@ -1,0 +1,11 @@
+dontinline,*.*_all_jmhStub
+dontinline,*.*_avgt_jmhStub
+dontinline,*.*_sample_jmhStub
+dontinline,*.*_ss_jmhStub
+dontinline,*.*_thrpt_jmhStub
+inline,fr/uge/simd/VectorComputationBenchmark.min_loop_array
+inline,fr/uge/simd/VectorComputationBenchmark.min_vector_array
+inline,fr/uge/simd/VectorComputationBenchmark.min_vector_mask_array
+inline,fr/uge/simd/VectorComputationBenchmark.sum_novector_array
+inline,fr/uge/simd/VectorComputationBenchmark.sum_vector_array
+inline,fr/uge/simd/VectorComputationBenchmark.sum_vector_mask_array
