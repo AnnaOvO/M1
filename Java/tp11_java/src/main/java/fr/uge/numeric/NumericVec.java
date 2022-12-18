@@ -1,11 +1,15 @@
 package fr.uge.numeric;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public class NumericVec<T> {
+public class NumericVec<T> implements Iterable<T>{
   private long[] numericVec;
   private int size = 0;
   private final Function<Long, T> from;
@@ -73,7 +77,81 @@ public class NumericVec<T> {
         .limit(size).mapToObj(e -> from.apply(e).toString())
         .collect(Collectors.joining(", ","[","]"));
   }
-  public void iterator() {
+  @Override
+  public Iterator<T> iterator() {
+    return new Iterator<>() {
+      private int i = 0;
+      private final int sizeI = size;
+      @Override
+      public boolean hasNext() {
+        return i < sizeI;
+      }
+      @Override
+      public T next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        return get(i++);
+      }
+    };
+  }
+  public void addAll(NumericVec<? extends T> seq) {
+    Objects.requireNonNull(seq);
+    for (int i = 0; i < seq.size; i++) {
+      this.add(seq.get(i));
+    }
+  }
 
+  public <E> NumericVec<E> map(Function<? super T, E> function, Supplier<? extends NumericVec<E>> factory) {
+    Objects.requireNonNull(function);
+    Objects.requireNonNull(factory);
+    var ret = factory.get();
+    Arrays.stream(numericVec, 0, size)
+        .mapToObj(o -> from.andThen(function).apply(o)).forEach(ret::add);
+    return ret;
+  }
+
+  public static <T> Collector<T, ?, NumericVec<T>> toNumericVec(Supplier<NumericVec<T>> factory) {
+    return Collector.of(factory,
+        NumericVec::add,
+        (n1, n2) -> { n1.addAll(n2); return n1; });
+  }
+
+  private Spliterator<T> fromNumeric(int start, int end) {
+    return new Spliterator<>() {
+      int index = start;
+      @Override
+      public boolean tryAdvance(Consumer<? super T> action) {
+        if (index == end) {
+          return false;
+        }
+        action.accept(get(index++));
+        return true;
+      }
+      @Override
+      public Spliterator<T> trySplit() {
+        var middle = (end + index) >>> 1;
+        if (middle == index || end - start < 1024) {
+          return null;
+        }
+        var split = fromNumeric(index, middle);
+        index = middle;
+        return split;
+      }
+
+      @Override
+      public long estimateSize() {
+        return end - start;
+      }
+
+      @Override
+      public int characteristics() {
+        return SIZED | SUBSIZED | NONNULL | ORDERED | IMMUTABLE;
+      }
+    };
+  }
+
+  public Stream<T> stream() {
+    return StreamSupport.stream(fromNumeric(0, size), size >= 1024);
   }
 }

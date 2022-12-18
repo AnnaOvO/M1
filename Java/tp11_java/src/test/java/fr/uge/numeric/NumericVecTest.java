@@ -530,7 +530,7 @@ public class NumericVecTest {
       assertThrows(UnsupportedOperationException.class, iterator::remove);
     }
   }
-/*
+
 
   @Nested
   public class Q6 {
@@ -674,7 +674,7 @@ public class NumericVecTest {
     }
   }
 
-/*
+
   @Nested
   public class Q7 {
 
@@ -788,7 +788,7 @@ public class NumericVecTest {
       );
     }
   }
-/*
+
 
   @Nested
   public class Q8 {
@@ -862,7 +862,7 @@ public class NumericVecTest {
     }
   }
 
-/*
+
   @Nested
   public class Q9 {
 
@@ -927,6 +927,4 @@ public class NumericVecTest {
       );
     }
   }
-
- */
 }
